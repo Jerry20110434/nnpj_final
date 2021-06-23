@@ -1,7 +1,7 @@
 """
 loads pkl data and concatenate/reshape them into a structured 4d array as .npy file
 
-this file should be under stock_data/ 
+this file should be under stock_data/../
 this script takes a lot of RAM. 
 run example: 
 python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--start_year', type=int, required=True, help='')
     parser.add_argument('--end_year', type=int, required=True, help='')
-    parser.add_argument('--name', type=str, required=True, help='') # e.g. train
+    parser.add_argument('--name', type=str, required=True, help='')  # e.g. train
     args = parser.parse_args()
 
     try:
@@ -28,13 +28,13 @@ if __name__ == '__main__':
         pass
 
 
-    fields = ['money', 'open', 'close', 'high', 'low', 'volume'] # money must be the first one
+    fields = ['money', 'open', 'close', 'high', 'low', 'volume']  # money must be the first one
 
     # load data
     print('loading data...')
     data = pd.DataFrame([])
     for year in range(args.start_year, args.end_year + 1):
-        data = pd.concat([data, pd.read_pickle(r'jqdata_a_stocks_5min_{}_modified.pkl'.format(year))])
+        data = pd.concat([data, pd.read_pickle(r'stock_data/jqdata_a_stocks_5min_{}_modified.pkl'.format(year))])
         print(year, '...')
 
     # generate indices
@@ -70,6 +70,6 @@ if __name__ == '__main__':
         # else:
         #     arr_data = np.concatenate([arr_data, arr_data_this_year], axis=0)
         print('saving...')
-        with open(r'processed_data/data_5min_{}_pt_{}.npy'.format(args.name, part), 'wb') as f:
+        with open(r'stock_data/processed_data/data_5min_{}_pt_{}.npy'.format(args.name, part), 'wb') as f:
             np.save(f, arr_data_this_year.astype('float64'))
         part += 1
