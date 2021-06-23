@@ -10,6 +10,9 @@ data_create_columns.py 这个脚本将time处理成date和time两列 保存为�
 python3 data_create_columns.py
 
 
+
+
+
 data_preprocessing.py 这个脚本对已经处理过date和time的数据用统一的multiindex进行reindex 然后保存为numpy 4维数组
 
 运行：
