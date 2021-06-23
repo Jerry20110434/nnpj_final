@@ -1,6 +1,7 @@
 # nnpj_final
 final project
 
+# 数据预处理
 数据预处理有两个文件：  
 \
 data_create_columns.py 这个脚本将time处理成date和time两列 保存为新的文件xxx_modified.pkl  
