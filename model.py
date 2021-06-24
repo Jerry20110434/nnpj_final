@@ -51,7 +51,7 @@ class GATModel(nn.Module):
         hidden = out[:, -1, :]
         for l in range(self.num_layers_gat):
             hidden = self.gat_layers[l](hidden)
-            hidden = hidden + out[:, -1:, :]
+            hidden = hidden + out[:, -1:, :] # residual connection from initial feature (layer k=0)
         hidden = self.fc(hidden)
         hidden = self.leaky_relu(hidden)
         return self.fc_out(hidden).squeeze()
