@@ -1,14 +1,17 @@
-# nnpj_final
-final project
+This repository includes source code for our final project of DATA130011.01, 2021 Spring.
 
-# 数据预处理
-数据预处理有两个文件：  
+# Data preprocessing
+Data preprocessing includes two files：  
 \
-data_create_columns.py 这个脚本将time处理成date和time两列 保存为新的文件xxx_modified.pkl  
-运行：  
+data_create_columns.py This script processes ['time'] into 2 columns: date and time, and saves as a new file xxx_modified.pkl  
+Run：  
 python3 data_create_columns.py  
 \
-data_preprocessing.py 这个脚本对已经处理过date和time的数据用统一的multiindex进行reindex 然后保存为numpy 4维数组  
-运行：  
+data_preprocessing.py This script concatenates xxx_modified.pkl files and reindexes them with a pandas multiindex, then save as 
+several 4-d ndarrays (the data is too large to be processed simultaneously).
+Run：  
 python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train  
 python3 data_preprocessing.py --start_year 2020 --end_year 2020 --name test  
+
+# Model
+model.py includes a Temporal GAT with multihop neighbors (paramter num_layers_gat).
