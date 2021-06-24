@@ -1,4 +1,5 @@
-This repository includes source code for our final project of DATA130011.01, 2021 Spring.
+This repository includes source code for our final project of DATA130011.01, Spring 2021. The results can be fully 
+replicated by following the "run" commands is this readme file.
 
 # Data preprocessing
 Data preprocessing includes two files：  

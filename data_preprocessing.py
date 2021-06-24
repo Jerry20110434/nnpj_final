@@ -2,7 +2,9 @@
 loads pkl data and concatenate/reshape them into a structured 4d array as .npy file
 
 this file should be under data/../ (i.e. parent folder of data)
-this script takes a lot of RAM. 
+this script takes a lot of RAM.
+data is arranged in order [open, close, high, low, volume, money]
+
 run example: 
 python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train
 python3 data_preprocessing.py --start_year 2020 --end_year 2020 --name test
@@ -23,12 +25,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     try:
-        os.mkdir('processed_data')
+        os.mkdir('data/processed_data')
     except Exception: # folder already exists
         pass
 
-
-    fields = ['money', 'open', 'close', 'high', 'low', 'volume']  # money must be the first one
 
     # load data
     print('loading data...')
@@ -65,10 +65,6 @@ if __name__ == '__main__':
         mask_no_trade = np.broadcast_to(daily_trade_value[:, np.newaxis, :, np.newaxis] == 0, arr_data_this_year.shape)
         arr_data_this_year[mask_no_trade] = np.nan
         print('concatenating...')
-        # if start_index == 0:
-        #     arr_data = arr_data_this_year
-        # else:
-        #     arr_data = np.concatenate([arr_data, arr_data_this_year], axis=0)
         print('saving...')
         with open(r'data/processed_data/data_5min_{}_pt_{}.npy'.format(args.name, part), 'wb') as f:
             np.save(f, arr_data_this_year.astype('float64'))
