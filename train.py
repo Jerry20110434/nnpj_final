@@ -112,6 +112,7 @@ if __name__ == "__main__":
     dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
 
     model = GATModel(d_feat=358)
+    model = model.to(device)
     optimizer = optim.Adam(model.parameters())
     criterion = nn.MSELoss()
 

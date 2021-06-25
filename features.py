@@ -40,7 +40,7 @@ def alpha360(data):
             signals.append(f.ts_delay(volume, d) / volume)
         if (d + 1) % 10 == 0:
             print('calculating alpha 360, progress {}/{}'.format(d + 1, 60))
-    return np.stack(signals, axis=2)
+    return f.remove_inf(np.stack(signals, axis=2))
 
 
 def ret1d(data):
