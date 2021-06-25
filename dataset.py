@@ -39,7 +39,8 @@ class dataset_gat_ts(Dataset):
         given index, returns data batch of shape [n_samples, step_len, d_feat+1]
         given an index, return data
         """
-        ret = self.data[:, index: index + self.step_len, :]
+        i = self.valid_indices[index]
+        ret = self.data[:, i: i + self.step_len, :]
         mask_valid = (np.isnan(ret).sum((1, 2)) == 0)
         ret = ret[mask_valid, :, :] # remove stocks with nan data
         return ret

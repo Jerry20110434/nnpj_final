@@ -58,8 +58,9 @@ if __name__ == "__main__":
 
     step_len = 20
     epochs = 200
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    np.seterr(divide='ignore') # disable division by zero warnings
 
     data_train = load_data('train')
     pdb.set_trace()  # debug
@@ -70,4 +71,6 @@ if __name__ == "__main__":
 
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
     model = GATModel()
+    for batch_train in dataloader_train:
+        pdb.set_trace()
     train(model, epochs, dataloader_train, dataloader_valid, device)

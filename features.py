@@ -9,6 +9,7 @@ run example: None
 import numpy as np
 import torch
 import ufuncs as f
+import pdb
 
 
 def alpha360(data):
@@ -18,13 +19,15 @@ def alpha360(data):
     :return: ndarray of shape (~1300, ~3700, 358)
     """
     # first, we only take daily stats, i.e. the last intraday data, to make thing easy
+    pdb.set_trace()
+
     data = data[:, -1, :, :]
     open = data[..., 0]
     close = data[..., 1]
     high = data[..., 2]
     low = data[..., 3]
     volume = data[..., 4]
-    vwap = data[..., 5] / volume  # vwap = money / volume
+    vwap = f.remove_inf(data[..., 5] / volume)  # vwap = money / volume
     signals = []
     for d in range(60):
         signals.append(f.ts_delay(open, d) / close)
@@ -34,6 +37,8 @@ def alpha360(data):
         if d > 0:
             signals.append(f.ts_delay(close, d) / close)
             signals.append(f.ts_delay(volume, d) / volume)
+        if (d + 1) % 10 == 0:
+            print('calculating alpha 360, progress {}/{}'.format(d + 1, 60))
     return np.stack(signals, axis=2)
 
 
@@ -45,4 +50,4 @@ def ret1d(data):
      after knowing the features for day T.
     """
     close = data[:, -1, :, 0]
-    return f.ts_delay(close, close, -2) / f.ts_delay(close, close, -1) - 1
+    return f.remove_inf(f.ts_delay(close, -2) / f.ts_delay(close, -1) - 1)

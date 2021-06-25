@@ -78,7 +78,7 @@ def ts_delay(arr, window=1, axis=0):
         slc1 = [slice(None)] * len(arr.shape)
         slc1[axis] = slice(window, arr.shape[axis])
         slc2 = [slice(None)] * len(arr.shape)
-        slc2[axis] = slice(0, -window)
+        slc2[axis] = slice(0, arr.shape[axis] - window)
         slc3 = [slice(None)] * len(arr.shape)
         slc3[axis] = slice(0, window)
         ret[tuple(slc1)] = ret[tuple(slc2)]
