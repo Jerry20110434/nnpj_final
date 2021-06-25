@@ -14,6 +14,7 @@ import pdb
 import argparse
 from model import *
 from features import *
+from dataset import *
 
 
 def load_data(mode):
@@ -40,7 +41,7 @@ def load_data(mode):
     return data
 
 
-def train(model, epochs):
+def train(model, epochs, dataloader_train, dataloader_valid):
     pass
 
 
@@ -54,10 +55,11 @@ if __name__ == "__main__":
     data_train = load_data('train')
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
+    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=20)
 
+    dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
+    for train_features, train_labels in dataloader_train:
 
-    train_dataloader = DataLoader(training_data, batch_size=batch_size, num_workers=num_worker, pin_memory=pin_memory)
-    for train_features, train_labels in train_dataloader:
         break
 
     pdb.set_trace() # debug
