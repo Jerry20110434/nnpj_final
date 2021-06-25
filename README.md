@@ -15,4 +15,4 @@ python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train
 python3 data_preprocessing.py --start_year 2020 --end_year 2020 --name test  
 
 # Model
-model.py includes a Temporal GAT with multihop neighbors (paramter num_layers_gat).  
+model.py includes a Temporal GAT with multihop neighbors (paramter num_layers_gat).

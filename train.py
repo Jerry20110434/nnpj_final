@@ -43,8 +43,18 @@ def load_data(mode):
 
 def train(model, epochs, dataloader_train, dataloader_valid, device):
     """train and validation"""
-    for batch_train in dataloader_train:
-        model(batch_train)
+
+    for epoch in range(epochs):
+        train_loss = 0.0
+        train_corrects = 0
+        train_samples = 0
+        model.train()
+
+        for batch_train in dataloader_train:
+            batch_train = batch_train.to(device)
+
+            pdb.set_trace()
+            model(batch_train)
 
 
 
@@ -69,9 +79,11 @@ if __name__ == "__main__":
     labels_valid = labels_train[-244:]; labels_train = labels_train[:-244]
 
     dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len)
+    dataset_valid = dataset_gat_ts(features_valid, labels_valid, step_len=step_len)
 
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
+    dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
+
     model = GATModel()
     for batch_train in dataloader_train:
-        pdb.set_trace()
-        train(model, epochs, dataloader_train, dataloader_train, device)
+        train(model, epochs, dataloader_train, dataloader_valid, device)

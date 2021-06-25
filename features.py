@@ -50,4 +50,5 @@ def ret1d(data):
      after knowing the features for day T.
     """
     close = data[:, -1, :, 0]
-    return f.remove_inf(f.ts_delay(close, -2) / f.ts_delay(close, -1) - 1)
+    ret = f.rank(f.remove_inf(f.ts_delay(close, -2) / f.ts_delay(close, -1) - 1), axis=1)
+    return ret - np.nanmean(ret, axis=1, keepdims=True)
