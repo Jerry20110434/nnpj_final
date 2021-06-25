@@ -27,7 +27,8 @@ class dataset_gat_ts(Dataset):
         self.valid_threshold = valid_threshold
         self.data = np.concatenate([data_features, data_labels[:, :, np.newaxis]], axis=2)
         self.data = np.swapaxes(self.data, 0, 1)
-        self.valid_indices = [] # we calculate the indices with enough training samples in days [T, T+step_len]
+        self.valid_indices = []  # we calculate the indices with enough training samples in days [T, T+step_len]
+        print('initialising dataset...')
         for i in range(self.data.shape[1] - step_len + 1):
             # we only batches with at least valid_threshold valid stocks
             if (np.isnan(self.data[:, i: i + step_len, :]).sum((1, 2)) == 0).sum() >= valid_threshold:

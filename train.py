@@ -60,12 +60,13 @@ if __name__ == "__main__":
     epochs = 200
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    np.seterr(divide='ignore') # disable division by zero warnings
+    np.seterr(divide='ignore')  # disable division by zero warnings
 
     data_train = load_data('train')
-    pdb.set_trace()  # debug
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
+    features_valid = features_train[-244:]; features_train = features_train[:-244] # create year 2019 as validation set
+    labels_valid = labels_train[-244:]; labels_train = labels_train[:-244]
 
     dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len)
 
@@ -73,4 +74,4 @@ if __name__ == "__main__":
     model = GATModel()
     for batch_train in dataloader_train:
         pdb.set_trace()
-    train(model, epochs, dataloader_train, dataloader_valid, device)
+        train(model, epochs, dataloader_train, dataloader_train, device)

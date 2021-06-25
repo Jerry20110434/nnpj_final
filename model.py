@@ -16,7 +16,7 @@ import torch.nn as nn
 
 class GATModel(nn.Module):
 
-    def __init__(self, d_feat=6, hidden_size=64, num_layers=2, num_layers_gat=1, dropout=0.0, base_model="GRU"):
+    def __init__(self, d_feat=6, hidden_size=64, num_layers=2, num_layers_gat=1, dropout=0.0, base_model="LSTM"):
         super().__init__()
         if base_model == "GRU":
             self.rnn = nn.GRU(
