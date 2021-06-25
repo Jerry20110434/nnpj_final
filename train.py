@@ -1,5 +1,5 @@
 """
-code for training.
+code for training. unfinished.
 
 this file should be under data/../ (i.e. parent folder of data)
 run example:
@@ -20,7 +20,7 @@ from dataset import *
 def load_data(mode):
     """
     loads data.
-    :param mode: 'train' or 'valid ' or 'test'.
+    :param mode: 'train' or 'test'.
     :return: ndarray
     """
     # find all files with name data_5min_train_pt_xxx
@@ -41,8 +41,11 @@ def load_data(mode):
     return data
 
 
-def train(model, epochs, dataloader_train, dataloader_valid):
-    pass
+def train(model, epochs, dataloader_train, dataloader_valid, device):
+    """train and validation"""
+    for batch_train in dataloader_train:
+        model(batch_train)
+
 
 
 if __name__ == "__main__":
@@ -52,14 +55,19 @@ if __name__ == "__main__":
     # parser.add_argument('--end_year', type=int, required=True, help='')
     # parser.add_argument('--name', type=str, required=True, help='')  # e.g. train
     # args = parser.parse_args()
+
+    step_len = 20
+    epochs = 200
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+
     data_train = load_data('train')
+    pdb.set_trace()  # debug
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
-    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=20)
+
+    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len)
 
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
-    for train_features, train_labels in dataloader_train:
-
-        break
-
-    pdb.set_trace() # debug
+    model = GATModel()
+    train(model, epochs, dataloader_train, dataloader_valid, device)

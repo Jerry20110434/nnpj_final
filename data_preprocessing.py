@@ -1,4 +1,6 @@
 """
+finished.
+
 loads pkl data and concatenate/reshape them into a structured 4d array as .npy file
 
 this file should be under data/../ (i.e. parent folder of data)

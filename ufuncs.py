@@ -1,4 +1,6 @@
 """
+unfinished.
+
 some handy functions that I have written. Extremely helpful when dealing with stock data,
 which could have missing values, and the funcs deal with them properly. Not all of them are used in the pj.
 """
