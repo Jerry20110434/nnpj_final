@@ -18,8 +18,9 @@ def alpha360(data):
     :param data: input ndarray of shape (~1300, 48, ~3700, 6). data is arranged in order [open, close, high, low, volume, money].
     :return: ndarray of shape (~1300, ~3700, 358)
     """
+
     # first, we only take daily stats, i.e. the last intraday data, to make thing easy
-    pdb.set_trace()
+    np.seterr(divide='ignore')  # disable division by zero warnings
 
     data = data[:, -1, :, :]
     open = data[..., 0]

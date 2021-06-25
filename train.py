@@ -10,6 +10,8 @@ import numpy as np
 import os
 import torch
 from torch.utils.data import DataLoader
+from torch import optim as optim
+from torch import nn as nn
 import pdb
 import argparse
 from model import *
@@ -41,21 +43,45 @@ def load_data(mode):
     return data
 
 
-def train(model, epochs, dataloader_train, dataloader_valid, device):
+def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, criterion):
     """train and validation"""
 
     for epoch in range(epochs):
+        pdb.set_trace()
+        print("Epoch {}:".format(epoch), end='')
         train_loss = 0.0
         train_corrects = 0
         train_samples = 0
+        print("training...\t", end='')
         model.train()
 
-        for batch_train in dataloader_train:
-            batch_train = batch_train.to(device)
+        for inputs in dataloader_train:  # e.g. torch.Size([1, 1761, 20, 359])
+            inputs = inputs.squeeze()  # e.g. torch.Size([1761, 20, 359])
+            features = inputs[:, :, :-1].to(device)
+            labels = inputs[:, -1, -1].to(device)
 
-            pdb.set_trace()
-            model(batch_train)
+            train_samples += inputs.shape[0]
+            preds = model(features.float())
+            # loss
+            loss = criterion(preds, labels)
+            optimizer.zero_grad()
+            loss.backward()
+            nn.utils.clip_grad_value_(model.parameters(), 3.0) # gradient clipping
+            optimizer.step()
 
+        print("evaluating...\t", end='')
+        model.eval()
+        scores = []
+        losses = []
+        for inputs in dataloader_valid:
+            inputs = inputs.squeeze()
+            features = inputs[:, :, :-1].to(device)
+            labels = inputs[:, -1, -1].to(device)
+            # feature[torch.isnan(feature)] = 0  # WE NEED TO EVALUTE ALL SAMPLES!??
+            pred = model(features.float())
+            loss = criterion(pred, labels)
+            losses.append(loss.item())
+        print(np.mean(losses))
 
 
 if __name__ == "__main__":
@@ -75,6 +101,7 @@ if __name__ == "__main__":
     data_train = load_data('train')
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
+    del data_train  # save RAM
     features_valid = features_train[-244:]; features_train = features_train[:-244] # create year 2019 as validation set
     labels_valid = labels_train[-244:]; labels_train = labels_train[:-244]
 
@@ -84,6 +111,9 @@ if __name__ == "__main__":
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
     dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
 
-    model = GATModel()
-    for batch_train in dataloader_train:
-        train(model, epochs, dataloader_train, dataloader_valid, device)
+    model = GATModel(d_feat=358)
+    optimizer = optim.Adam(model.parameters())
+    criterion = nn.MSELoss()
+
+    pdb.set_trace()
+    train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, criterion)
