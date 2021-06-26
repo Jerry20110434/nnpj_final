@@ -116,5 +116,4 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters())
     criterion = nn.MSELoss()
 
-    pdb.set_trace()
     train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, criterion)

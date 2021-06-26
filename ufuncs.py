@@ -374,7 +374,7 @@ def rolling_inflated_array(arr, window, axis=0):
 
 
 def wraped_nanfuncs(f, arr, axis):
-    """wrap for funcs such as np.nanargmin, which raises exception when encoutering all-nan row/..."""
+    """wrap for funcs such as np.nanargmin(), which raises exception when encountering all-nan row/..."""
     ALL_NAN_MASK = ((~np.isnan(arr)).sum(axis) == 0)  # values along axis=axis are not all nans
     arr = np.where(np.isnan(arr), np.inf, arr)
     ret = f(arr, axis).astype('float')
