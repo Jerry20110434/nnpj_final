@@ -63,11 +63,13 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             train_samples += inputs.shape[0]
             preds = model(features.float())
             # loss
-            loss = criterion(preds, labels)
+            loss = criterion(preds.double(), labels)
             optimizer.zero_grad()
             loss.backward()
-            nn.utils.clip_grad_value_(model.parameters(), 3.0) # gradient clipping
+            nn.utils.clip_grad_value_(model.parameters(), 3.0)  # gradient clipping
             optimizer.step()
+            print(loss.item())
+
 
         print("evaluating...\t", end='')
         model.eval()
@@ -78,8 +80,8 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             features = inputs[:, :, :-1].to(device)
             labels = inputs[:, -1, -1].to(device)
             # feature[torch.isnan(feature)] = 0  # WE NEED TO EVALUTE ALL SAMPLES!??
-            pred = model(features.float())
-            loss = criterion(pred, labels)
+            preds = model(features.float())
+            loss = criterion(preds.double(), labels)
             losses.append(loss.item())
         print(np.mean(losses))
 

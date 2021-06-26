@@ -48,6 +48,11 @@ class GATModel(nn.Module):
             self.gat_layers.append(GATLayer(self.hidden_size))
 
     def forward(self, x):
+        """
+
+        :param x: input data  of shape [n_samples, step_len, d_feat+1]
+        :return:
+        """
         out, _ = self.rnn(x)
         hidden = out[:, -1, :]
         for l in range(self.num_layers_gat):

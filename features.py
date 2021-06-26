@@ -22,13 +22,12 @@ def alpha360(data):
     # first, we only take daily stats, i.e. the last intraday data, to make thing easy
     np.seterr(divide='ignore')  # disable division by zero warnings
 
-    data = data[:, -1, :, :]
-    open = data[..., 0]
-    close = data[..., 1]
-    high = data[..., 2]
-    low = data[..., 3]
-    volume = data[..., 4]
-    vwap = f.remove_inf(data[..., 5] / volume)  # vwap = money / volume
+    open = data[:, 0, :, 0]
+    close = data[:, -1, :, 1]
+    high = np.max(data[:, :, :, 2], 1)
+    low = np.min(data[:, :, :, 3], 1)
+    volume = np.sum(data[:, :, :, 4], 1)
+    vwap = f.remove_inf(np.sum(data[:, :, :, 5], 1) / volume)  # vwap = money / volume
     signals = []
     for d in range(60):
         signals.append(f.ts_delay(open, d) / close)
