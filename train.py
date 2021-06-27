@@ -18,8 +18,10 @@ from model import *
 from features import *
 from dataset import *
 
+torch.backends.cudnn.enabled = False  # causes bug, may be due to server cudnn version
 
-def load_data(mode):
+
+def load_data(mode, use_all_samples):
     """
     loads data.
     :param mode: 'train' or 'test'.
@@ -38,6 +40,8 @@ def load_data(mode):
                 else:
                     data = np.concatenate([data, np.load(f)], axis=0)
             part += 1
+            if use_all_samples == 'False' and part >= 5:
+                break
         else:  # no more files to load.
             break
     return data
@@ -47,7 +51,6 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
     """train and validation"""
 
     for epoch in range(epochs):
-        pdb.set_trace()
         print("Epoch {}:".format(epoch), end='')
         train_loss = 0.0
         train_corrects = 0
@@ -55,6 +58,7 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
         print("training...\t", end='')
         model.train()
 
+        losses = []
         for inputs in dataloader_train:  # e.g. torch.Size([1, 1761, 20, 359])
             inputs = inputs.squeeze()  # e.g. torch.Size([1761, 20, 359])
             features = inputs[:, :, :-1].to(device)
@@ -68,7 +72,8 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             loss.backward()
             nn.utils.clip_grad_value_(model.parameters(), 3.0)  # gradient clipping
             optimizer.step()
-            print(loss.item())
+            losses.append(loss.item())
+        print(np.mean(losses), end='\t')
 
 
         print("evaluating...\t", end='')
@@ -88,11 +93,9 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
 
 if __name__ == "__main__":
 
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--start_year', type=int, required=True, help='')
-    # parser.add_argument('--end_year', type=int, required=True, help='')
-    # parser.add_argument('--name', type=str, required=True, help='')  # e.g. train
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--use_all_samples', type=str, required=False, help='', default='True')
+    args = parser.parse_args()
 
     step_len = 20
     epochs = 200
@@ -100,22 +103,23 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     np.seterr(divide='ignore')  # disable division by zero warnings
 
-    data_train = load_data('train')
+    data_train = load_data('train', use_all_samples=args.use_all_samples)[:, :, :2000, :]
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
+    valid_length = int(len(data_train) / 10)
     del data_train  # save RAM
-    features_valid = features_train[-244:]; features_train = features_train[:-244] # create year 2019 as validation set
-    labels_valid = labels_train[-244:]; labels_train = labels_train[:-244]
+    features_valid = features_train[-valid_length:]; features_train = features_train[:-valid_length] # create year 2019 as validation set
+    labels_valid = labels_train[-valid_length:]; labels_train = labels_train[:-valid_length]
 
-    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len)
-    dataset_valid = dataset_gat_ts(features_valid, labels_valid, step_len=step_len)
+    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len, valid_threshold=1)
+    dataset_valid = dataset_gat_ts(features_valid, labels_valid, step_len=step_len, valid_threshold=1)
 
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
     dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
 
     model = GATModel(d_feat=358)
     model = model.to(device)
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.MSELoss()
 
     train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, criterion)

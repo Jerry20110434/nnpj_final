@@ -11,8 +11,7 @@ python3 data_create_columns.py
 data_preprocessing.py This script concatenates xxx_modified.pkl files and reindexes them with a pandas multiindex, then save as 
 several 4-d ndarrays (the data is too large to be processed simultaneously).  
 Run：  
-python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train  
-python3 data_preprocessing.py --start_year 2020 --end_year 2020 --name test  
+python3 data_preprocessing.py --start_year 2014 --end_year 2019 --name train_and_test
 
 # Model
 model.py includes a Temporal GAT with multihop neighbors (paramter num_layers_gat).
