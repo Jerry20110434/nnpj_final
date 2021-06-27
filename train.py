@@ -103,7 +103,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     np.seterr(divide='ignore')  # disable division by zero warnings
 
-    data_train = load_data('train', use_all_samples=args.use_all_samples)[:, :, :2000, :]
+    data_train = load_data('train_and_test', use_all_samples=args.use_all_samples)
     features_train = alpha360(data_train)
     labels_train = ret1d(data_train)
     valid_length = int(len(data_train) / 10)

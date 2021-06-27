@@ -294,16 +294,14 @@ def filter_extreme_MAD(arr2d, axis=1, n=5):
     return np.clip(arr2d, min_range, max_range)
 
 
-def calPearsonR(x, y, axis=1):
+def calPearsonR(x, y, axis=0):
     """calculate pearsonr along an axis."""
-    x = x - np.expand_dims(np.nanmean(x, axis=1), 1)
-    y = y - np.expand_dims(np.nanmean(y, axis=1), 1)
-    mask = (~np.isnan(x) & ~np.isnan(y))
+    x = x - np.nanmean(x, axis=axis, keepdims=True)
+    y = y - np.nanmean(y, axis=axis, keepdims=True)
     nanmask = (np.isnan(x) | np.isnan(y))  # make x and y have the same nan values
     x[nanmask] = np.nan
     y[nanmask] = np.nan
-    result = np.nansum(x * y, 1) / np.sqrt(np.nansum(x ** 2, 1) * np.nansum(y ** 2, 1))
-    result[mask.sum(axis=axis) <= 100] = np.nan  # at least 100 stocks to compute IC
+    result = np.nansum(x * y, axis) / np.sqrt(np.nansum(x ** 2, axis) * np.nansum(y ** 2, axis))
     return result
 
 
