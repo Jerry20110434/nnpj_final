@@ -17,8 +17,29 @@ import argparse
 from model import *
 from features import *
 from dataset import *
+import pickle
+
 
 torch.backends.cudnn.enabled = False  # causes bug, may be due to server cudnn version
+
+
+def save_pth(model,path,epoch):
+    pickle.dump(model.state_dict(),open(os.path.join(path,"%d.pth"%epoch),"wb"))
+
+
+def load_pth(model,path,epoch=-1):
+    if epoch==0:
+        return
+    if epoch==-1:
+        pth_index=[int(i[:-4]) for i in os.listdir(path) if i[-4:]==".pth"]
+        epoch=max(pth_index)
+    print("Loading %d.pth..."%epoch)
+    model.load_state_dict(pickle.load(open(os.path.join(path,"%d.pth"%epoch),"rb")))
+
+
+def sav_log(epoch,trainloss,evalloss,file="log.csv"):
+    with open(file,"a+",encoding="utf8") as f:
+        f.write(",".join([str(epoch),str(trainloss),str(evalloss)]))
 
 
 def load_data(mode):
@@ -78,7 +99,6 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             features = inputs[:, :, :-1].to(device)
             labels = inputs[:, -1, -1].to(device)
 
-            train_samples += inputs.shape[0]
             preds = model(features.float())
             # loss
             loss = criterion(preds.double(), labels)
@@ -88,7 +108,7 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             optimizer.step()
             losses.append(loss.item())
         print(np.mean(losses), end='\t')
-
+        train_loss=np.mean(losses)
 
         print("evaluating...\t", end='')
         model.eval()
@@ -103,9 +123,16 @@ def train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, 
             loss = criterion(preds.double(), labels)
             losses.append(loss.item())
         print(np.mean(losses))
+        eval_loss=np.mean(losses)
+        sav_log(epoch,train_loss,eval_loss)
+        save_pth(model,"./pth",epoch)
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--start_epoch', type=int, required=True, default=-1, help='-1 to load latest model, 0 to start new model, or other number to order a model')
+    args = parser.parse_args()
+
 
     step_len = 20
     epochs = 200
@@ -140,9 +167,10 @@ if __name__ == "__main__":
     dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=32)
 
-    model = GATModel(d_feat=158)
+    model = GATModel(d_feat=158, dropout=0.7)
+    load_pth(model, "./pth", epoch=args.start_epoch)
     model = model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001)
     criterion = nn.MSELoss()
 
     pdb.set_trace()
