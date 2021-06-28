@@ -44,7 +44,8 @@ def alpha360(data):
 
 def alpha158(data, data_index, interval):
     """
-    calculates alpha158 features. this is an attempt to reimplement all of alpha158, and may have mistakes.
+    calculates alpha158 features. this is an attempt to reimplement all 158 formulaic alphas
+    from https://github.com/microsoft/qlib/blob/main/qlib/contrib/data/handler.py, and may have mistakes.
 
     :param data: input ndarray of shape (~1300, 48, ~3700, 6). fields are arranged in order [open, close, high, low,
     volume, money].
@@ -54,6 +55,7 @@ def alpha158(data, data_index, interval):
     period). However, the signals are always calculated every 48 5mins (1d). e.g. MA5 for the 30th day uses
     the 30*48th, (30*48-interval)th, (30*48-interval*2)th, ..., (30*48-interval*4)th data.
 
+    :return: ndarray of shape (1706, 158, 4185)
     """
 
     def RELU(arr):
@@ -77,9 +79,9 @@ def alpha158(data, data_index, interval):
         ti = di * 48  # data up to data[ti - 1, ...] can be used
         if ti < np.max(windows) * interval: # we need all features to have values
             signals_di = np.full((n_features, data.shape[1]), np.nan)
+            print('skipping this day. too few samples for rolling.')
         else:
-
-            # kbar
+            # kbar. calculated from the last available bar of interval 5mins
             OPEN = data[ti - interval, :, 0]
             CLOSE = data[ti - 1, :, 1]
             HIGH = np.nanmax(data[ti - interval: ti, :, 2], 0)  # high is max of highs
@@ -96,13 +98,13 @@ def alpha158(data, data_index, interval):
             signals_di.append((2 * CLOSE - HIGH - LOW) / OPEN)  # 8
             signals_di.append((2 * CLOSE - HIGH - LOW) / (HIGH - LOW))  # 9
 
-            # price
+            # price. same as kbar.
             signals_di.append(OPEN / CLOSE - 1)  # 10. modified the original feature to have -1.
             signals_di.append(HIGH / CLOSE - 1)  # 11
             signals_di.append(LOW / CLOSE - 1)  # 12
             signals_di.append(VWAP / CLOSE - 1)  # 13
 
-            # rolling
+            # rolling. calculate with various rolling windows.
             for window in windows:  # 14 - 158
                 MASK = np.full(data.shape[0], False)
                 for d in range(window):

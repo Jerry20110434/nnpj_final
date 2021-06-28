@@ -18,15 +18,14 @@ class dataset_gat_ts(Dataset):
     def __init__(self, data_features, data_labels, step_len=20, valid_threshold=30):
         """
 
-        :param data_features:
-        :param data_labels:
+        :param data_features:  shape [n_samples, step_len, d_feat]
+        :param data_labels:  shape [n_samples, step_len]
         :param step_len:
         :param valid_threshold: number of stocks that have data in all step_len days and all features.
         """
         self.step_len = step_len
         self.valid_threshold = valid_threshold
         self.data = np.concatenate([data_features, data_labels[:, :, np.newaxis]], axis=2)
-        self.data = np.swapaxes(self.data, 0, 1)
         self.valid_indices = []  # we calculate the indices with enough training samples in days [T, T+step_len]
         print('initialising dataset...')
         for i in range(self.data.shape[1] - step_len + 1):
