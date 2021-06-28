@@ -29,7 +29,7 @@ class dataset_gat_ts(Dataset):
         self.valid_indices = []  # we calculate the indices with enough training samples in days [T, T+step_len]
         print('initialising dataset...')
         for i in range(self.data.shape[1] - step_len + 1):
-            # we only batches with at least valid_threshold valid stocks
+            # we only consider batches with at least valid_threshold valid stocks
             if (np.isnan(self.data[:, i: i + step_len, :]).sum((1, 2)) == 0).sum() >= valid_threshold:
                 self.valid_indices.append(i)
 

@@ -53,9 +53,10 @@ def load_features_and_labels(interval):
     """
     file_name_candidate = 'data/processed_data/data_features_and_labels_interval_{}.npy'.format(interval)
     if os.path.isfile(file_name_candidate):
-        print('loading features and labels')
+        print('loading features and labels...')
         with open(file_name_candidate, 'rb') as f:
             data = np.load(f)
+        print('load finished.')
     return data
 
 
@@ -117,27 +118,33 @@ if __name__ == "__main__":
     # labels_train = ret1d(data_train)
     # valid_length = int(len(data_train) / 10)
     # del data_train  # save RAM
-    data = load_features_and_labels()
+    data = load_features_and_labels(interval=48)[:2000, ...]
     features_all, labels_all = data[..., :-1], data[..., -1]
-    valid_length = int(len(features_all) / 10)
-    features_train = features_all[:-242][:-valid_length]
-    labels_train = labels_all[:-242][:-valid_length]
-    features_valid = features_all[:-242][-valid_length:]
-    labels_valid = labels_all[:-242][-valid_length:]
-    features_test = features_all[-242:]
-    labels_test = labels_all[-242:]
+    valid_length = int(data.shape[1] / 10)
+    features_train = features_all[:, :-242][:, :-valid_length]
+    labels_train = labels_all[:, :-242][:, :-valid_length]
+    # extra step_len days for validation and test set because the first step_len days are discarded in the dateset
+    features_valid = features_all[:, :-242][:, -valid_length - step_len:]
+    labels_valid = labels_all[:, :-242][:, -valid_length - step_len:]
+    features_test = features_all[:, -242 - step_len:]
+    labels_test = labels_all[:, -242 - step_len:]
 
-    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len, valid_threshold=1)
-    dataset_valid = dataset_gat_ts(features_valid, labels_valid, step_len=step_len, valid_threshold=1)
-    dataset_test = dataset_gat_ts(features_test, labels_test, step_len=step_len, valid_threshold=1)
+    dataset_train = dataset_gat_ts(features_train, labels_train, step_len=step_len, valid_threshold=30)
+    dataset_valid = dataset_gat_ts(features_valid, labels_valid, step_len=step_len, valid_threshold=30)
+    dataset_test = dataset_gat_ts(features_test, labels_test, step_len=step_len, valid_threshold=30)
+    print('available samples/days: training set {}, validation set {}, test set {}'.format(
+        dataset_train.__len__(), dataset_valid.__len__(), dataset_test.__len__()
+    ))
 
     dataloader_train = DataLoader(dataset_train, batch_size=1, num_workers=32)
     dataloader_valid = DataLoader(dataset_valid, batch_size=1, num_workers=32)
     dataloader_test = DataLoader(dataset_test, batch_size=1, num_workers=32)
 
-    model = GATModel(d_feat=358)
+    model = GATModel(d_feat=158)
     model = model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     criterion = nn.MSELoss()
+
+    pdb.set_trace()
 
     train(model, epochs, dataloader_train, dataloader_valid, device, optimizer, criterion)

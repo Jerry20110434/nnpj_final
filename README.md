@@ -6,6 +6,8 @@ python3 data_create_columns.py
 python3 data_preprocessing.py --start_year 2014 --end_year 2020 --name train_and_test  
 python3 data_preprocessing_stock_index.py --index 000300  
 python3 generate_features_and_labels.py --interval 48
+
+python3 train.py
 ```
 
 # Data preprocessing

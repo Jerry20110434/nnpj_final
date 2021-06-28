@@ -21,8 +21,8 @@ if __name__ == "__main__":
         data_index = np.load(f)
     features = alpha158(data, data_index, args.interval)
     labels = ret1d(data)
-    pdb.set_trace()
     # reshape to [n_samples, step_len, d_feat+1]
     ret = np.concatenate([np.moveaxis(features, -1, 0), np.swapaxes(labels, 0, 1)[:, :, np.newaxis]], axis=2)
+    pdb.set_trace()
     with open('data/processed_data/data_features_and_labels_interval_{}.npy'.format(args.interval), 'wb') as f:
         np.save(f, ret)
