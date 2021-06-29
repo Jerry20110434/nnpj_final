@@ -1,5 +1,5 @@
 """
-functions that calculate features. testing.
+our implementation of the entire alpha158 and alpha360 dataset.
 
 this file should be under data/../ (i.e. parent folder of data)
 run example: None
@@ -15,31 +15,28 @@ import pandas as pd
 
 def alpha360(data):
     """
-    calculates alpha360 features. This is no longer being used.
+    calculates alpha360 features. only available as daily stats.
     :param data: input ndarray of shape (~1300, 48, ~3700, 6). fields are arranged in order [open, close, high, low, volume, money].
     :return: ndarray of shape (~1300, ~3700, 358)
     """
-
-    # first, we only take daily stats, i.e. the last intraday data, to make thing easy
-
     open = data[:, 0, :, 0]
     close = data[:, -1, :, 1]
-    high = np.max(data[:, :, :, 2], 1)
-    low = np.min(data[:, :, :, 3], 1)
-    volume = np.sum(data[:, :, :, 4], 1)
-    vwap = f.remove_inf(np.sum(data[:, :, :, 5], 1) / volume)  # vwap = money / volume
+    high = np.nanmax(data[:, :, :, 2], 1)
+    low = np.nanmin(data[:, :, :, 3], 1)
+    volume = np.nansum(data[:, :, :, 4], 1)
+    vwap = f.remove_inf(np.nansum(data[:, :, :, 5], 1) / volume)  # vwap = money / volume
     signals = []
     for d in range(60):
-        signals.append(f.ts_delay(open, d) / close)
-        signals.append(f.ts_delay(high, d) / close)
-        signals.append(f.ts_delay(low, d) / close)
-        signals.append(f.ts_delay(vwap, d) / close)
+        signals.append(f.ts_delay(open, d) / close - 1)
+        signals.append(f.ts_delay(high, d) / close - 1)
+        signals.append(f.ts_delay(low, d) / close - 1)
+        signals.append(f.ts_delay(vwap, d) / close - 1)
         if d > 0:
-            signals.append(f.ts_delay(close, d) / close)
-            signals.append(f.ts_delay(volume, d) / volume)
+            signals.append(f.ts_delay(close, d) / close - 1)
+            signals.append(f.ts_delay(volume, d) / volume - 1)
         if (d + 1) % 10 == 0:
             print('calculating alpha 360, progress {}/{}'.format(d + 1, 60))
-    return f.remove_inf(np.log(np.stack(signals, axis=2)))
+    return f.remove_inf(np.stack(signals, axis=2))
 
 
 def alpha158(data, data_index, interval):

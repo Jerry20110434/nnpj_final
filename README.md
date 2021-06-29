@@ -9,7 +9,19 @@ python3 generate_features_and_labels.py --interval 1
 python3 generate_features_and_labels.py --interval 6
 python3 generate_features_and_labels.py --interval 48
 python3 generate_features_and_labels.py --interval 240
-python3 train.py --start_epoch 0
+python3 generate_features_and_labels.py --interval 0 --alpha 358
+
+python3 train.py --model GAT --interval 1 --folder_name GAT_1_alpha158
+python3 train.py --model GAT --interval 6 --folder_name GAT_6_alpha158
+python3 train.py --model GAT --interval 48 --folder_name GAT_48_alpha158
+python3 train.py --model GAT --interval 240 --folder_name GAT_240_alpha158
+
+python3 train.py --model GAT --interval 48 --folder_name GAT_48_alpha158_2head --GAThead 2
+python3 train.py --model GAT --interval 48 --folder_name GAT_48_alpha158_3hop --GATlayers 3
+python3 train.py --model GAT --interval 48 --folder_name GAT_48_alpha360 --alpha 358
+
+python3 train.py --model LSTM --interval 48 --folder_name LSTM_48_alpha158
+python3 train.py --model GRU --interval 48 --folder_name GRU_48_alpha158
 ```
 
 # Data preprocessing
