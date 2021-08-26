@@ -1,3 +1,4 @@
+Authors: Zehua YU and Zewen JIANG.
 This repository includes source code for our final project of DATA130011.01, Spring 2021. The results can be fully 
 replicated by running the following commands, after copying stock_data/ into project folder and renaming it as data/:
 
